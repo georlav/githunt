@@ -26,7 +26,7 @@ Options:
 
 ## TODO
  * Add option to dump exposed git directories
- * add more tests
+ * Add more tests
 
 ## Credits
  * [georlav](https://github.com/georlav)
