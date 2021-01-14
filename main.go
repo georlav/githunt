@@ -21,9 +21,9 @@ func main() {
 	// CLI params
 	target := flag.String("url", "", "check single url")
 	targets := flag.String("urls", "", "file with urls, should have one url per line")
-	workers := flag.Int("workers", 10, "sets the number of http workers")
+	workers := flag.Int("workers", 20, "sets the number of http workers")
 	cpus := flag.Int("cpus", runtime.NumCPU()-1, "sets the maximum number of CPUs that can be utilized")
-	rateLimit := flag.Int("rate-limit", 500, "sets requests per second limit (default:500)")
+	rateLimit := flag.Int("rate-limit", 500, "limit requests per second (default: 500)")
 	timeout := flag.Int64("timeout", 15, "set a time limit for requests in seconds (default: 15)")
 	output := flag.String("output", "", "save vulnerable targets in a file")
 	debug := flag.Bool("debug", false, "enable debug")
@@ -230,9 +230,9 @@ Usage Examples:
 
 Options:
   -url         url of target
-  -urls        file containing multiple urls (one url per line)
-  -rate-limit  sets requests per second limit (default:500)
-  -workers     sets the desirable number of http workers (default: 10)
+  -urls        file containing multiple urls (one per line)
+  -rate-limit  limit requests per second (default: 500)
+  -workers     sets the desirable number of http workers (default: 20)
   -cpus        sets the maximum number of CPUs that can be utilized (default: %d)
   -timeout     set a time limit for requests in seconds (default: 15)
   -output      save vulnerable targets in a file
