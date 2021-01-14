@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/georlav/githunt/internal/client"
 )
 
@@ -39,7 +40,7 @@ func main() {
 
 	// target is required
 	if *targets == "" && *target == "" {
-		fmt.Fprint(os.Stderr, "You need to specify a url\n")
+		color.New(color.FgRed, color.Bold).Fprint(os.Stderr, "You need to specify a url\n")
 		os.Exit(1)
 	}
 
@@ -56,7 +57,7 @@ func main() {
 	)
 
 	defer func() {
-		fmt.Printf("Scanned: %d target(s) in %s\nFound: %d vulnerable\n",
+		color.New(color.FgGreen, color.Bold).Printf("Scanned: %d target(s) in %s found: %d vulnerable\n\n",
 			atomic.LoadUint64(&tScanned),
 			time.Since(started).String(),
 			tVulnerable,
@@ -66,14 +67,14 @@ func main() {
 	// load targets
 	targetsCH, err := loadTargets(ctx, *targets, *target)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to load targets. Error: %s\n", err)
+		color.New(color.FgRed, color.Bold).Printf("Failed to load targets. Error: %s\n", err)
 		os.Exit(1)
 	}
 
 	// save vulnerable targets to output file
 	vulnerableCH := make(chan string)
 	if err := save(ctx, vulnerableCH, *output); err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
+		color.New(color.FgRed, color.Bold).Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
 
@@ -83,18 +84,22 @@ func main() {
 	for r := range resultCh {
 		if r.Error != nil {
 			if *debug && r.Result != nil {
-				fmt.Fprintf(os.Stderr, "%s | Error: %s\n", r.Result.Debug.String(), r.Error)
+				color.New(color.FgRed, color.Bold).Fprintf(os.Stderr, "%s | Error: %s\n",
+					r.Result.Debug.String(), r.Error,
+				)
 			}
 
 			if strings.Contains(r.Error.Error(), "too many open files") {
-				fmt.Fprint(os.Stderr, "You need to increase ulimit for open files or decrease number of workers\n")
+				color.New(
+					color.FgRed, color.Bold,
+				).Fprint(os.Stderr, "You need to increase ulimit for open files or decrease number of workers\n")
 				os.Exit(1)
 			}
 		}
 
 		if *output != "" && r.Result.Vulnerable {
 			tVulnerable++
-			fmt.Printf("Target: %s is vulnerable.\n", r.Target.URL.String())
+			color.New(color.FgGreen, color.Bold).Printf("Target: %s is vulnerable.\n", r.Target.URL.String())
 			vulnerableCH <- r.Result.URL.String()
 		}
 
@@ -103,7 +108,11 @@ func main() {
 		}
 
 		atomic.AddUint64(&tScanned, 1)
-		fmt.Printf("Scanned: %d target(s) in %s\r", atomic.LoadUint64(&tScanned), time.Since(started).String())
+		color.New(color.FgGreen, color.Bold).Printf("Scanned: %d target(s) in %s found: %d vulnerable\r",
+			atomic.LoadUint64(&tScanned),
+			time.Since(started).String(),
+			tVulnerable,
+		)
 	}
 }
 
@@ -237,7 +246,8 @@ Options:
   -timeout     set a time limit for requests in seconds (default: 15)
   -output      save vulnerable targets in a file
   -debug       enable debug messages (default: disabled)
+
 `
-		fmt.Printf(usage, cpus)
+		color.New(color.FgGreen, color.Bold).Printf(usage, cpus)
 	}
 }
