@@ -23,3 +23,13 @@ Options:
   -debug       enable debug messages (default: disabled)
 
 ```
+
+## TODO
+ * Add option to dump exposed git directories
+ * add more tests
+
+## Credits
+ * [georlav](https://github.com/georlav)
+
+## Licence
+The MIT License (MIT) - see [`LICENSE.md`](https://github.com/georlav/githunt/blob/master/LICENSE.md) for more details
