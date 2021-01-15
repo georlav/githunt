@@ -91,14 +91,15 @@ func main() {
 	for r := range resultCh {
 		// handle target parsing errors
 		if r.Target.Error != nil {
-			fmtError.Fprintf(os.Stderr, "%s | Error: %s\n", r.Result.Debug.String(), r.Target.Error)
+			fmtError.Fprintf(os.Stderr, "Target Error: %s\n", r.Target.Error)
 			os.Exit(1)
 		}
 
 		// handle request errors
 		if r.Error != nil {
 			if *debug && r.Result != nil {
-				fmtError.Fprintf(os.Stderr, "%s | Error: %s\n", r.Result.Debug.String(), r.Error)
+				fmtError.Println(r.Result.Debug.String())
+				fmtError.Fprintf(os.Stderr, "Request Error: %s\n", r.Error)
 			}
 
 			if strings.Contains(r.Error.Error(), "too many open files") {
@@ -107,14 +108,15 @@ func main() {
 			}
 		}
 
-		if *output != "" && r.Result.Vulnerable {
-			tVulnerable++
-			fmtInfo.Printf("  Target: %s is vulnerable.\n", r.Target.URL.String())
-			vulnerableCH <- r.Result.URL.String()
-		}
-
-		if *debug && r.Result != nil {
+		if r.Result != nil && *debug {
 			fmt.Println(r.Result.Debug)
+		}
+		if r.Result != nil && r.Result.Vulnerable {
+			tVulnerable++
+			fmtInfo.Printf("Target: %s is vulnerable.\n", r.Target.URL.String())
+			if *output != "" {
+				vulnerableCH <- r.Result.URL.String()
+			}
 		}
 
 		atomic.AddUint64(&tScanned, 1)
@@ -173,6 +175,7 @@ func loadTargets(ctx context.Context, filename string, target string) (<-chan cl
 		if tURL.Scheme == "" {
 			tURL.Scheme = "https"
 		}
+		tURL.Path += "/.git/config"
 
 		go func() {
 			targets <- client.Target{URL: *tURL}
@@ -209,9 +212,7 @@ func loadTargets(ctx context.Context, filename string, target string) (<-chan cl
 					if u.Scheme == "" {
 						u.Scheme = "https"
 					}
-
-					u.Path = u.Path + "/.git/config"
-					targets <- client.Target{URL: *u}
+					u.Path += "/.git/config"
 				}
 
 				if err := scanner.Err(); err != nil {

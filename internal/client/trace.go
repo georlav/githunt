@@ -38,10 +38,10 @@ type Debug struct {
 
 func (d *Debug) String() string {
 	var out = `
+
 Address: %s 
 DNS Duration: %s 
-Request Duration: %s
-`
+Request Duration: %s`
 
 	return fmt.Sprintf(out,
 		d.Address,

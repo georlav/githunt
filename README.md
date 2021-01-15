@@ -1,6 +1,16 @@
+![Tests](https://github.com/georlav/githunt/workflows/Tests/badge.svg)
+![Linter](https://github.com/georlav/githunt/workflows/Golang-CI/badge.svg)
+
 # GitHunt
 A simple tool to mass check targets for exposed .git directories.
 
+## Features
+ * Check single target for exposed git directory
+ * Check multiple targets for exposed git directory
+## TODO
+ * Add option to dump exposed git directories
+
+## Usage
 ```text
 
   _   o  _|_  |_        ._   _|_ 
@@ -24,9 +34,17 @@ Options:
 
 ```
 
-## TODO
- * Add option to dump exposed git directories
- * Add more tests
+## Installation
+To install command line program, use the following:
+```bash
+go get -v github.com/georlav/githunt/...
+```
+
+## Build
+To build a local version, use the following:
+```bash
+go build -o githunt main.go
+```
 
 ## Credits
  * [georlav](https://github.com/georlav)
