@@ -1,0 +1,28 @@
+name: Create Release
+
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  build:
+    name: Create release
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: "auto"
+
+    steps:
+      - name: Install GO
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          go build -o githunt -ldflags "-X main.version=${{ github.ref }}"
+          githunt --help
