@@ -1,0 +1,42 @@
+name: Create Release
+
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  build:
+    name: Create release
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: "auto"
+
+    steps:
+      - name: Install GO
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get version tag
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+      - name: Build
+        run: |
+          go build -o githunt -ldflags "-X main.version=${{ steps.get_version.outputs.VERSION }}"
+          ./githunt --help
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUBTOKEN }}
+          file: githunt
+          asset_name: githunt
+          tag: ${{ github.ref }}
+          overwrite: true
+          body: "githunt version ${{ steps.get_version.outputs.VERSION }}"
