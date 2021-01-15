@@ -164,7 +164,7 @@ func save(ctx context.Context, results <-chan string, output string) error {
 	return nil
 }
 
-func loadTargets(ctx context.Context, filename string, target string) (<-chan client.Target, error) {
+func loadTargets(ctx context.Context, filename, target string) (<-chan client.Target, error) {
 	targets := make(chan client.Target)
 
 	// single target
@@ -179,7 +179,7 @@ func loadTargets(ctx context.Context, filename string, target string) (<-chan cl
 		tURL.Path += "/.git/config"
 
 		go func() {
-			targets <- client.Target{URL: *tURL}
+			targets <- client.Target{URL: tURL}
 			if filename == "" {
 				close(targets)
 			}
