@@ -214,6 +214,8 @@ func loadTargets(ctx context.Context, filename, target string) (<-chan client.Ta
 						u.Scheme = "https"
 					}
 					u.Path += "/.git/config"
+
+					targets <- client.Target{URL: u}
 				}
 
 				if err := scanner.Err(); err != nil {
