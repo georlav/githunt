@@ -13,4 +13,4 @@ jobs:
 
     steps:
       - name: do stuff
-        echo ${{ matrix.os }} ${{ matrix.arch }}
+        run: echo ${{ matrix.os }} ${{ matrix.arch }}
