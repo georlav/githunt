@@ -40,3 +40,4 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
           body: "githunt version ${{ steps.get_version.outputs.VERSION }}"
+          
