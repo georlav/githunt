@@ -57,9 +57,7 @@ func (c *Client) CheckGit(ctx context.Context, u url.URL) (*CheckGitResult, erro
 
 	result := &CheckGitResult{Debug: d, URL: u}
 	resp, err := c.c.Do(req)
-	if d != nil {
-		d.Request.End = time.Now()
-	}
+	d.Request.End = time.Now()
 	if err != nil {
 		return result, err
 	}
