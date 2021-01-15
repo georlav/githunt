@@ -42,7 +42,6 @@ jobs:
         id: build
         run: |
           go build -o githunt -ldflags "-X main.version=${{ steps.get_version.outputs.VERSION }}"
-          ./githunt --help
           zip -m githunt-${{ matrix.os }}-${{ matrix.arch }}.zip githunt
           echo ::set-output name=FILENAME::githunt-${{ matrix.os }}-${{ matrix.arch }}
 
