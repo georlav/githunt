@@ -28,10 +28,10 @@ func main() {
 
 	// CLI params
 	target := flag.String("url", "", "check single url")
-	targets := flag.String("urls", "", "file with urls, should have one url per line")
-	workers := flag.Int("workers", 50, "sets the number of http workers")
+	targets := flag.String("urls", "", "file containing multiple urls (one per line)")
+	rateLimit := flag.Int("rate-limit", 500, "requests per second limit (default: 500)")
+	workers := flag.Int("workers", 50, "sets the desirable number of http workers")
 	cpus := flag.Int("cpus", runtime.NumCPU()-1, "sets the maximum number of CPUs that can be utilized")
-	rateLimit := flag.Int("rate-limit", 500, "limit requests per second (default: 500)")
 	timeout := flag.Int64("timeout", 15, "set a time limit for requests in seconds (default: 15)")
 	output := flag.String("output", "", "save vulnerable targets in a file")
 	debug := flag.Bool("debug", false, "enable debug")
@@ -47,8 +47,9 @@ func main() {
 
 	// target is required
 	if *targets == "" && *target == "" {
-		fmtError.Fprint(os.Stderr, "You need to specify a url\n")
-		os.Exit(1)
+		flag.Usage()
+		fmtError.Fprint(os.Stderr, "You need to specify a target\n")
+		os.Exit(0)
 	}
 
 	// Initialize http client
@@ -249,14 +250,19 @@ Usage Examples:
   githunt -targets urls.txt -workers 100 -timeout 5 -output out.txt
 
 Options:
-  -url         url of target
-  -urls        file containing multiple urls (one per line)
-  -rate-limit  limit requests per second (default: 500)
-  -workers     sets the desirable number of http workers (default: 50)
-  -cpus        sets the maximum number of CPUs that can be utilized (default: %d)
-  -timeout     set a time limit for requests in seconds (default: 15)
-  -output      save vulnerable targets in a file
-  -debug       enable debug messages (default: disabled)
+  Target:
+    -url         check single url
+    -urls        file containing multiple urls (one per line)
+
+  Request:
+    -rate-limit  requests per second limit (default: 500)
+    -workers     sets the desirable number of http workers (default: 50)
+    -cpus        sets the maximum number of CPUs that can be utilized (default: %d)
+    -timeout     set a time limit for requests in seconds (default: 15)
+  
+  General:
+    -output      save vulnerable targets in a file
+    -debug       enable debug messages (default: disabled)
 
 `
 		color.New(color.FgGreen, color.Bold).Printf(usage, version, cpus)
