@@ -30,5 +30,13 @@ jobs:
         run: |
           go build -o githunt -ldflags "-X main.version=${{ steps.get_version.outputs.VERSION }}"
           ./githunt --help
-          echo ${{ steps.get_version.outputs.VERSION }}
-          
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUBTOKEN }}
+          file: githunt
+          asset_name: githunt
+          tag: ${{ github.ref }}
+          overwrite: true
+          body: "githunt version ${{ steps.get_version.outputs.VERSION }}"
