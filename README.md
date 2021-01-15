@@ -35,7 +35,7 @@ Options:
 ```
 
 ## Installation
-To install command line program, use the following:
+To install the command line program, use the following:
 ```bash
 go get -v github.com/georlav/githunt/...
 ```
