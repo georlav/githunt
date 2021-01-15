@@ -86,5 +86,4 @@ func TestClient_CheckGit(t *testing.T) {
 			}
 		})
 	}
-
 }
