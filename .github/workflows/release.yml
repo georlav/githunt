@@ -31,3 +31,4 @@ jobs:
           go build -o githunt -ldflags "-X main.version=${{ steps.get_version.outputs.VERSION }}"
           ./githunt --help
           echo ${{ steps.get_version.outputs.VERSION }}
+          
