@@ -1,0 +1,16 @@
+name: testing
+on: [ push ]
+
+jobs:
+
+  test:
+    name: testing
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ linux, darwin ]
+        arch: [ 386, amd64, arm64]
+
+    steps:
+      - name: do stuff
+        echo ${{ matrix.os }} ${{ matrix.arch }}
