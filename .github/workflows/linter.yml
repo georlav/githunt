@@ -6,6 +6,8 @@ jobs:
   lint:
     name: Run Golang-CI Linter
     runs-on: ubuntu-latest
+    env:
+      GO111MODULE: "on"
 
     steps:
       - name: Install GO
