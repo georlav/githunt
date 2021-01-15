@@ -2,7 +2,7 @@
 ![Linter](https://github.com/georlav/githunt/workflows/Golang-CI/badge.svg)
 
 # GitHunt
-A simple tool to mass check targets for exposed .git directories.
+A simple command line tool to mass check targets for exposed .git directories.
 
 ## Features
  * Check single target for exposed git directory
