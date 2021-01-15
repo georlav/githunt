@@ -22,7 +22,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Get version tag
+        id: version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
       - name: Build
         run: |
-          go build -o githunt -ldflags "-X main.version=${{ github.ref##*/ }}"
+          go build -o githunt -ldflags "-X main.version=${{ github.event.release.tag_name }}"
           ./githunt --help
