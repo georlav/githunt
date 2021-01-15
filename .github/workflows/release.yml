@@ -24,5 +24,5 @@ jobs:
 
       - name: Build
         run: |
-          go build -o githunt -ldflags "-X main.version=${{ github.ref }}"
+          go build -o githunt -ldflags "-X main.version=${{ github.ref##*/ }}"
           ./githunt --help
