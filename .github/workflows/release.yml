@@ -12,6 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GO111MODULE: "auto"
+    strategy:
+      matrix:
+        include:
+          - os: linux
+            arch: amd64
+          - os: darwin
+            arch: amd64
+          - os: windows
+            arch: amd64
 
     steps:
       - name: Install GO
@@ -27,16 +36,21 @@ jobs:
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
 
       - name: Build
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        id: build
         run: |
           go build -o githunt -ldflags "-X main.version=${{ steps.get_version.outputs.VERSION }}"
-          ./githunt --help
+          zip -m githunt-${{ matrix.os }}-${{ matrix.arch }}.zip githunt
+          echo ::set-output name=FILENAME::githunt-${{ matrix.os }}-${{ matrix.arch }}
 
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUBTOKEN }}
-          file: githunt
-          asset_name: githunt
+          file: ${{ steps.build.outputs.FILENAME }}.zip
+          asset_name: ${{ steps.build.outputs.FILENAME }}
           tag: ${{ github.ref }}
           overwrite: true
-          body: "githunt version ${{ steps.get_version.outputs.VERSION }}"
+          body: "githunt ${{ steps.get_version.outputs.VERSION }} ${{ steps.build.outputs.FILENAME }}"
