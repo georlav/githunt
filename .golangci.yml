@@ -119,18 +119,20 @@ issues:
       linters:
         - funlen
         - gocognit
-    - path: response.go
+    - path: main.go
       linters:
         - gocognit
         - funlen
         - gocyclo
+        - goconst
 
-          # https://github.com/go-critic/go-critic/issues/926
-    - linters:
-        - gocritic
-      text: "unnecessaryDefer:"
-      text: "exitAfterDefer:"
+  exclude:
+    - "`w.Write` is not checked"
+    - "TLS InsecureSkipVerify set true"
+    - "should not use basic type string as key in context.WithValue"
+    - "should not use built-in type string as key for value"
+    - "exitAfterDefer"
 
 run:
 service:
-  golangci-lint-version: 1.31.0 # use the fixed version to not introduce new linters unexpectedly
+  golangci-lint-version: 1.33.0 # use the fixed version to not introduce new linters unexpectedly

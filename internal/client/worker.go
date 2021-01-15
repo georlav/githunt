@@ -7,7 +7,7 @@ import (
 )
 
 type Target struct {
-	URL     url.URL
+	URL     *url.URL
 	Error   error
 	Retries int
 }

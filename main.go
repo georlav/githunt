@@ -18,17 +18,24 @@ import (
 	"github.com/georlav/githunt/internal/client"
 )
 
+var version string
+
 func main() {
+	var (
+		fmtError = color.New(color.FgRed, color.Bold)
+		fmtInfo  = color.New(color.FgGreen, color.Bold)
+	)
+
 	// CLI params
 	target := flag.String("url", "", "check single url")
-	targets := flag.String("urls", "", "file with urls, should have one url per line")
-	workers := flag.Int("workers", 20, "sets the number of http workers")
+	targets := flag.String("urls", "", "file containing multiple urls (one per line)")
+	rateLimit := flag.Int("rate-limit", 500, "requests per second limit (default: 500)")
+	workers := flag.Int("workers", 50, "sets the desirable number of http workers")
 	cpus := flag.Int("cpus", runtime.NumCPU()-1, "sets the maximum number of CPUs that can be utilized")
-	rateLimit := flag.Int("rate-limit", 500, "limit requests per second (default: 500)")
 	timeout := flag.Int64("timeout", 15, "set a time limit for requests in seconds (default: 15)")
 	output := flag.String("output", "", "save vulnerable targets in a file")
 	debug := flag.Bool("debug", false, "enable debug")
-	flag.Usage = usage(runtime.NumCPU() - 1)
+	flag.Usage = usage(runtime.NumCPU()-1, version)
 	flag.Parse()
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -40,8 +47,9 @@ func main() {
 
 	// target is required
 	if *targets == "" && *target == "" {
-		color.New(color.FgRed, color.Bold).Fprint(os.Stderr, "You need to specify a url\n")
-		os.Exit(1)
+		flag.Usage()
+		fmtError.Fprint(os.Stderr, "You need to specify a target\n")
+		os.Exit(0)
 	}
 
 	// Initialize http client
@@ -57,7 +65,7 @@ func main() {
 	)
 
 	defer func() {
-		color.New(color.FgGreen, color.Bold).Printf("Scanned: %d target(s) in %s found: %d vulnerable\n\n",
+		fmtInfo.Printf("Scanned: %d target(s) in %s found: %d vulnerable\n\n",
 			atomic.LoadUint64(&tScanned),
 			time.Since(started).String(),
 			tVulnerable,
@@ -67,14 +75,14 @@ func main() {
 	// load targets
 	targetsCH, err := loadTargets(ctx, *targets, *target)
 	if err != nil {
-		color.New(color.FgRed, color.Bold).Printf("Failed to load targets. Error: %s\n", err)
+		fmtError.Printf("Failed to load targets. Error: %s\n", err)
 		os.Exit(1)
 	}
 
 	// save vulnerable targets to output file
 	vulnerableCH := make(chan string)
 	if err := save(ctx, vulnerableCH, *output); err != nil {
-		color.New(color.FgRed, color.Bold).Fprintf(os.Stderr, "%s\n", err)
+		fmtError.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
 
@@ -82,33 +90,38 @@ func main() {
 
 	// handle results
 	for r := range resultCh {
+		// handle target parsing errors
+		if r.Target.Error != nil {
+			fmtError.Fprintf(os.Stderr, "Target Error: %s\n", r.Target.Error)
+			os.Exit(1)
+		}
+
+		// handle request errors
 		if r.Error != nil {
 			if *debug && r.Result != nil {
-				color.New(color.FgRed, color.Bold).Fprintf(os.Stderr, "%s | Error: %s\n",
-					r.Result.Debug.String(), r.Error,
-				)
+				fmtError.Println(r.Result.Debug.String())
+				fmtError.Fprintf(os.Stderr, "Request Error: %s\n", r.Error)
 			}
 
 			if strings.Contains(r.Error.Error(), "too many open files") {
-				color.New(
-					color.FgRed, color.Bold,
-				).Fprint(os.Stderr, "You need to increase ulimit for open files or decrease number of workers\n")
+				fmtError.Fprint(os.Stderr, "You need to increase ulimit for open files or decrease number of workers\n")
 				os.Exit(1)
 			}
 		}
 
-		if *output != "" && r.Result.Vulnerable {
-			tVulnerable++
-			color.New(color.FgGreen, color.Bold).Printf("Target: %s is vulnerable.\n", r.Target.URL.String())
-			vulnerableCH <- r.Result.URL.String()
-		}
-
-		if *debug && r.Result != nil {
+		if r.Result != nil && *debug {
 			fmt.Println(r.Result.Debug)
+		}
+		if r.Result != nil && r.Result.Vulnerable {
+			tVulnerable++
+			fmtInfo.Printf("Target: %s is vulnerable.\n", r.Target.URL.String())
+			if *output != "" {
+				vulnerableCH <- r.Result.URL.String()
+			}
 		}
 
 		atomic.AddUint64(&tScanned, 1)
-		color.New(color.FgGreen, color.Bold).Printf("Scanned: %d target(s) in %s found: %d vulnerable\r",
+		fmtInfo.Printf("Scanned: %d target(s) in %s found: %d vulnerable\r",
 			atomic.LoadUint64(&tScanned),
 			time.Since(started).String(),
 			tVulnerable,
@@ -151,7 +164,7 @@ func save(ctx context.Context, results <-chan string, output string) error {
 	return nil
 }
 
-func loadTargets(ctx context.Context, filename string, target string) (<-chan client.Target, error) {
+func loadTargets(ctx context.Context, filename, target string) (<-chan client.Target, error) {
 	targets := make(chan client.Target)
 
 	// single target
@@ -163,9 +176,10 @@ func loadTargets(ctx context.Context, filename string, target string) (<-chan cl
 		if tURL.Scheme == "" {
 			tURL.Scheme = "https"
 		}
+		tURL.Path += "/.git/config"
 
 		go func() {
-			targets <- client.Target{URL: *tURL}
+			targets <- client.Target{URL: tURL}
 			if filename == "" {
 				close(targets)
 			}
@@ -199,9 +213,7 @@ func loadTargets(ctx context.Context, filename string, target string) (<-chan cl
 					if u.Scheme == "" {
 						u.Scheme = "https"
 					}
-
-					u.Path = u.Path + "/.git/config"
-					targets <- client.Target{URL: *u}
+					u.Path += "/.git/config"
 				}
 
 				if err := scanner.Err(); err != nil {
@@ -225,11 +237,11 @@ func terminate(cancel context.CancelFunc) {
 }
 
 // help menu
-func usage(cpus int) func() {
+func usage(cpus int, version string) func() {
 	return func() {
 		var usage = `
   _   o  _|_  |_        ._   _|_ 
- (_|  |   |_  | |  |_|  | |   |_ 
+ (_|  |   |_  | |  |_|  | |   |_  %s 
   _|
 Usage: githunt [options...] 
 
@@ -238,16 +250,21 @@ Usage Examples:
   githunt -targets urls.txt -workers 100 -timeout 5 -output out.txt
 
 Options:
-  -url         url of target
-  -urls        file containing multiple urls (one per line)
-  -rate-limit  limit requests per second (default: 500)
-  -workers     sets the desirable number of http workers (default: 20)
-  -cpus        sets the maximum number of CPUs that can be utilized (default: %d)
-  -timeout     set a time limit for requests in seconds (default: 15)
-  -output      save vulnerable targets in a file
-  -debug       enable debug messages (default: disabled)
+  Target:
+    -url         check single url
+    -urls        file containing multiple urls (one per line)
+
+  Request:
+    -rate-limit  requests per second limit (default: 500)
+    -workers     sets the desirable number of http workers (default: 50)
+    -cpus        sets the maximum number of CPUs that can be utilized (default: %d)
+    -timeout     set a time limit for requests in seconds (default: 15)
+  
+  General:
+    -output      save vulnerable targets in a file
+    -debug       enable debug messages (default: disabled)
 
 `
-		color.New(color.FgGreen, color.Bold).Printf(usage, cpus)
+		color.New(color.FgGreen, color.Bold).Printf(usage, version, cpus)
 	}
 }

@@ -6,6 +6,8 @@ jobs:
   lint:
     name: Run Golang-CI Linter
     runs-on: ubuntu-latest
+    env:
+      GO111MODULE: "auto"
 
     steps:
       - name: Install GO
@@ -15,9 +17,6 @@ jobs:
 
       - name: Checkout Repository
         uses: actions/checkout@v2
-
-      - name: Vendor dependencies
-        run: go mod vendor
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2

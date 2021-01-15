@@ -7,7 +7,7 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     env:
-      GO111MODULE: "on"
+      GO111MODULE: "auto"
 
     steps:
       - name: Install GO
@@ -17,9 +17,6 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Vendor dependencies
-        run: go mod vendor
 
       - name: Run tests
         run: |

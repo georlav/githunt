@@ -44,7 +44,7 @@ func NewClient(options ...Option) *Client {
 }
 
 // Checks check and verify if a target is vulnerable
-func (c *Client) CheckGit(ctx context.Context, u url.URL) (*CheckGitResult, error) {
+func (c *Client) CheckGit(ctx context.Context, u *url.URL) (*CheckGitResult, error) {
 	_ = c.limiter.Wait(ctx)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
@@ -57,9 +57,7 @@ func (c *Client) CheckGit(ctx context.Context, u url.URL) (*CheckGitResult, erro
 
 	result := &CheckGitResult{Debug: d, URL: u}
 	resp, err := c.c.Do(req)
-	if d != nil {
-		d.Request.End = time.Now()
-	}
+	d.Request.End = time.Now()
 	if err != nil {
 		return result, err
 	}
