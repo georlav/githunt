@@ -29,7 +29,7 @@ Options:
   Request:
     -rate-limit  requests per second limit (default: 500)
     -workers     sets the desirable number of http workers (default: 50)
-    -cpus        sets the maximum number of CPUs that can be utilized (default: 7)
+    -cpus        sets the maximum number of CPUs that can be utilized (default: num of local cpus - 1)
     -timeout     set a time limit for requests in seconds (default: 15)
   
   General:
