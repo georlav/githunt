@@ -32,7 +32,8 @@ func main() {
 	rateLimit := flag.Int("rate-limit", 500, "requests per second limit (default: 500)")
 	workers := flag.Int("workers", 50, "sets the desirable number of http workers")
 	cpus := flag.Int("cpus", runtime.NumCPU()-1, "sets the maximum number of CPUs that can be utilized")
-	timeout := flag.Int64("timeout", 15, "set a time limit for requests in seconds (default: 15)")
+	timeout := flag.Duration("timeout", time.Second*30, `sets a time limit for requests, valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`)
+
 	output := flag.String("output", "", "save vulnerable targets in a file")
 	debug := flag.Bool("debug", false, "enable debug")
 	flag.Usage = usage(runtime.NumCPU()-1, version)
@@ -100,12 +101,11 @@ func main() {
 		if r.Error != nil {
 			if *debug && r.Result != nil {
 				fmtError.Println(r.Result.Debug.String())
-				fmtError.Fprintf(os.Stderr, "Request Error: %s\n", r.Error)
 			}
+			fmtError.Fprintf(os.Stderr, "Request Error: %s\n", r.Error)
 
 			if strings.Contains(r.Error.Error(), "too many open files") {
-				fmtError.Fprint(os.Stderr, "You need to increase ulimit for open files or decrease number of workers\n")
-				os.Exit(1)
+				fmtError.Fprintf(os.Stderr, "%s, You need to increase ulimit for open files or decrease number of workers\n", err)
 			}
 		}
 
@@ -249,7 +249,7 @@ Usage: githunt [options...]
 
 Usage Examples:
   githunt -target example.com
-  githunt -targets urls.txt -workers 100 -timeout 5 -output out.txt
+  githunt -targets urls.txt -workers 100 -timeout 30s -output out.txt
 
 Options:
   Target:
@@ -260,7 +260,7 @@ Options:
     -rate-limit  requests per second limit (default: 500)
     -workers     sets the desirable number of http workers (default: 50)
     -cpus        sets the maximum number of CPUs that can be utilized (default: %d)
-    -timeout     set a time limit for requests in seconds (default: 15)
+    -timeout     sets a time limit for requests, valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". (default: 30s)
   
   General:
     -output      save vulnerable targets in a file

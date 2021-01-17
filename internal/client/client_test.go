@@ -37,7 +37,7 @@ func TestClient_CheckGit(t *testing.T) {
 
 	// Initialize http client
 	c := client.NewClient(
-		client.SetTimeout(1),
+		client.SetTimeout(time.Second*30),
 		client.SetQPS(10),
 	)
 
