@@ -5,9 +5,9 @@ import "time"
 type Option func(*Client)
 
 // SetTimeout change request timeout
-func SetTimeout(seconds int64) Option {
+func SetTimeout(duration time.Duration) Option {
 	return func(args *Client) {
-		args.c.Timeout = time.Second * time.Duration(seconds)
+		args.c.Timeout = duration
 	}
 }
 

@@ -51,7 +51,7 @@ Request Duration: %s`
 }
 
 func trace() (*httptrace.ClientTrace, *Debug) {
-	d := &Debug{}
+	d := Debug{}
 
 	t := &httptrace.ClientTrace{
 		GetConn: func(hostPort string) {
@@ -87,5 +87,5 @@ func trace() (*httptrace.ClientTrace, *Debug) {
 		},
 	}
 
-	return t, d
+	return t, &d
 }

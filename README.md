@@ -13,13 +13,13 @@ A simple command line tool to mass check targets for exposed .git directories.
 ## Usage
 ```text
   _   o  _|_  |_        ._   _|_ 
- (_|  |   |_  | |  |_|  | |   |_   
+ (_|  |   |_  | |  |_|  | |   |_ 
   _|
 Usage: githunt [options...] 
 
 Usage Examples:
   githunt -target example.com
-  githunt -targets urls.txt -workers 100 -timeout 5 -output out.txt
+  githunt -targets urls.txt -workers 100 -timeout 30s -output out.txt
 
 Options:
   Target:
@@ -29,8 +29,8 @@ Options:
   Request:
     -rate-limit  requests per second limit (default: 500)
     -workers     sets the desirable number of http workers (default: 50)
-    -cpus        sets the maximum number of CPUs that can be utilized (default: num of local cpus - 1)
-    -timeout     set a time limit for requests in seconds (default: 15)
+    -cpus        sets the maximum number of CPUs that can be utilized (default: %d)
+    -timeout     sets a time limit for requests, valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". (default: 30s)
   
   General:
     -output      save vulnerable targets in a file
