@@ -32,8 +32,9 @@ func main() {
 	rateLimit := flag.Int("rate-limit", 500, "requests per second limit (default: 500)")
 	workers := flag.Int("workers", 50, "sets the desirable number of http workers")
 	cpus := flag.Int("cpus", runtime.NumCPU()-1, "sets the maximum number of CPUs that can be utilized")
-	timeout := flag.Duration("timeout", time.Second*30, `sets a time limit for requests, valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`)
-
+	timeout := flag.Duration("timeout", time.Second*30,
+		`sets a time limit for requests, valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,
+	)
 	output := flag.String("output", "", "save vulnerable targets in a file")
 	debug := flag.Bool("debug", false, "enable debug")
 	flag.Usage = usage(runtime.NumCPU()-1, version)
