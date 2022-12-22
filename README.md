@@ -13,7 +13,7 @@ A simple command line tool to mass check targets for exposed .git directories.
 ## Usage
 ```text
   _   o  _|_  |_        ._   _|_ 
- (_|  |   |_  | |  |_|  | |   |_ 
+ (_|  |   |_  | |  |_|  | |   |_   
   _|
 Usage: githunt [options...] 
 
@@ -27,14 +27,12 @@ Options:
     -urls        file containing multiple urls (one per line)
 
   Request:
-    -rate-limit  requests per second limit (default: 500)
     -workers     sets the desirable number of http workers (default: 50)
     -cpus        sets the maximum number of CPUs that can be utilized (default: %d)
-    -timeout     sets a time limit for requests, valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". (default: 30s)
+    -timeout     sets a time limit for requests, valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". (default: 15s)
   
   General:
-    -output      save vulnerable targets in a file
-    -debug       enable debug messages (default: disabled)
+    -output      save vulnerable targets togo r a file
 ```
 
 ## Installation
