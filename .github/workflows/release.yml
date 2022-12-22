@@ -4,7 +4,7 @@ on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
   build:
@@ -26,7 +26,7 @@ jobs:
       - name: Install GO
         uses: actions/setup-go@v2
         with:
-          go-version: 1.15
+          go-version: 1.19
 
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -50,7 +50,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUBTOKEN }}
           file: ${{ steps.build.outputs.FILENAME }}.zip
-          asset_name: ${{ steps.build.outputs.FILENAME }}
+          asset_name: ${{ steps.build.outputs.FILENAME }}.zip
           tag: ${{ github.ref }}
           overwrite: true
           body: "githunt ${{ steps.get_version.outputs.VERSION }} ${{ steps.build.outputs.FILENAME }}"

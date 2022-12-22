@@ -2,10 +2,10 @@ package client_test
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -17,7 +17,7 @@ func TestClient_CheckGit(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Query().Get("result") {
 		case "found":
-			b, err := ioutil.ReadFile("testdata/response.txt")
+			b, err := os.ReadFile("testdata/response.txt")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -37,8 +37,7 @@ func TestClient_CheckGit(t *testing.T) {
 
 	// Initialize http client
 	c := client.NewClient(
-		client.SetTimeout(time.Second*30),
-		client.SetQPS(10),
+		client.SetTimeout(time.Second * 5),
 	)
 
 	testsCases := []struct {
@@ -76,13 +75,13 @@ func TestClient_CheckGit(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			result, err := c.CheckGit(context.Background(), u)
+			isVulnerable, err := c.CheckGit(context.Background(), u)
 			if err != nil && !strings.Contains(err.Error(), tc.err) {
 				t.Fatal(err)
 			}
 
-			if result != nil && tc.vulnerable != result.Vulnerable {
-				t.Fatalf("Invalid result, expected %t got %t", tc.vulnerable, result.Vulnerable)
+			if tc.vulnerable != isVulnerable {
+				t.Fatal("Unexpected result")
 			}
 		})
 	}
