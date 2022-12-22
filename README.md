@@ -32,7 +32,7 @@ Options:
     -timeout     sets a time limit for requests, valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". (default: 15s)
   
   General:
-    -output      save vulnerable targets togo r a file
+    -output      save vulnerable targets to a file
 ```
 
 ## Installation
