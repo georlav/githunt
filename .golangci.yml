@@ -71,19 +71,19 @@ linters:
     - gochecknoglobals
     - gochecknoinits
     - gocognit
-    - goconst
+    # - goconst
     - gocritic
     - gocyclo
     - gofmt
     - goimports
     - golint
-#    - gomnd
+    #    - gomnd
     - goprintffuncname
     - gosec
     - gosimple
     - govet
     - ineffassign
-#    - interfacer
+    #    - interfacer
     - lll
     - misspell
     - nakedret

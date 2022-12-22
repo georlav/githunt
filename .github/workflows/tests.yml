@@ -1,27 +1,24 @@
 name: Tests
-on: [ push ]
+on: [push]
 
 jobs:
-
   test:
     name: Tests
     runs-on: ubuntu-latest
-    env:
-      GO111MODULE: "auto"
 
     steps:
       - name: Install GO
         uses: actions/setup-go@v2
         with:
-          go-version: 1.15
+          go-version: 1.19
 
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Run tests
         run: |
-          GO111MODULE=off go get -v github.com/mfridman/tparse/...
-          go test ./... -short -v -race --failfast -coverprofile=coverage.txt -covermode=atomic -json | tparse -all -notests -dump
+          go install github.com/mfridman/tparse/...@latest
+          go test -race ./... -v -short -json -timeout=120s --failfast -p=1 -coverprofile=coverage.txt | tparse -all -notests -follow
 
       - name: Build
         run: go build -o githunt
