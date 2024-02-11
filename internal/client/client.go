@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -18,7 +19,7 @@ func NewClient(options ...Option) *Client {
 	client := Client{
 		handle: &http.Client{
 			Transport: &http.Transport{
-				TLSClientConfig:    &tls.Config{InsecureSkipVerify: true},
+				TLSClientConfig:    &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
 				DisableKeepAlives:  true,
 				DisableCompression: true,
 			},
@@ -36,16 +37,16 @@ func NewClient(options ...Option) *Client {
 	return &client
 }
 
-// Checks check and verify if a target is vulnerable
+// Checks check and verify if a target is vulnerable.
 func (c *Client) CheckGit(ctx context.Context, u *url.URL) (bool, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), http.NoBody)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("creating request. Error: %w", err)
 	}
 
 	resp, err := c.handle.Do(req)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("sending request. Error: %w", err)
 	}
 	defer resp.Body.Close()
 
