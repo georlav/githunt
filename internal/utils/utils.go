@@ -14,7 +14,7 @@ import (
 
 func SaveResults(ctx context.Context, results <-chan string, output string) error {
 	if output != "" {
-		out, err := os.OpenFile(output, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		out, err := os.OpenFile(output, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,7 @@ func SaveResults(ctx context.Context, results <-chan string, output string) erro
 }
 
 //nolint:gocognit
-func LoadTargetURLs(ctx context.Context, filename, target string) (<-chan worker.Target, error) {
+func LoadTargetURLs(ctx context.Context, filename, target, urlPath string) (<-chan worker.Target, error) {
 	targets := make(chan worker.Target)
 
 	// single target
@@ -59,7 +59,7 @@ func LoadTargetURLs(ctx context.Context, filename, target string) (<-chan worker
 		if tURL.Scheme == "" {
 			tURL.Scheme = "https"
 		}
-		tURL.Path += "/.git/config"
+		tURL.Path += urlPath
 
 		go func() {
 			targets <- worker.Target{URL: tURL}
@@ -96,7 +96,7 @@ func LoadTargetURLs(ctx context.Context, filename, target string) (<-chan worker
 					if u.Scheme == "" {
 						u.Scheme = "https"
 					}
-					u.Path += "/.git/config"
+					u.Path += urlPath
 
 					targets <- worker.Target{URL: u}
 				}
@@ -116,15 +116,15 @@ func LoadTargetURLs(ctx context.Context, filename, target string) (<-chan worker
 // help menu
 func Usage(cpus int, version string) func() {
 	return func() {
-		var usage = `
+		usage := `
   _   o  _|_  |_        ._   _|_ 
  (_|  |   |_  | |  |_|  | |   |_  %s 
   _|
 Usage: githunt [options...] 
 
 Usage Examples:
-  githunt -target example.com
-  githunt -targets urls.txt -workers 100 -timeout 30s -output out.txt
+  githunt -url example.com
+  githunt -urls urls.txt -workers 100 -timeout 30s -output out.txt
 
 Options:
   Target:

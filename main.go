@@ -29,6 +29,7 @@ func main() {
 	// CLI params
 	target := flag.String("url", "", "check single url")
 	targets := flag.String("urls", "", "file containing multiple urls (one per line)")
+	urlPath := flag.String("path", "/.git/config", "sets the path to .git config file (default: /.git/config)")
 	workers := flag.Int("workers", 50, "sets the desirable number of http workers")
 	cpus := flag.Int("cpus", runtime.NumCPU()-1, "sets the maximum number of CPUs that can be utilized")
 	timeout := flag.Duration("timeout", time.Second*15,
@@ -71,13 +72,13 @@ func main() {
 	}()
 
 	// load targets
-	targetsCH, err := utils.LoadTargetURLs(ctx, *targets, *target)
+	targetsCH, err := utils.LoadTargetURLs(ctx, *targets, *target, *urlPath)
 	if err != nil {
 		fmtError.Printf("Failed to load targets. Error: %s\n", err)
 		os.Exit(1)
 	}
 
-	// save vulnerable targets to output file
+	// save vulnerable targets in a file
 	vulnerableCH := make(chan string)
 	if err := utils.SaveResults(ctx, vulnerableCH, *output); err != nil {
 		fmtError.Fprintf(os.Stderr, "%s\n", err)
@@ -115,7 +116,7 @@ func main() {
 	}
 }
 
-// terminate on termination signal send cancellation signal
+// terminate on SIGINT or SIGTERM
 func terminate(cancel context.CancelFunc) {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

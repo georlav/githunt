@@ -50,5 +50,5 @@ go build -o githunt main.go
 ## Credits
  * [georlav](https://github.com/georlav)
 
-## Licence
+## License
 The MIT License (MIT) - see [`LICENSE.md`](https://github.com/georlav/githunt/blob/master/LICENSE.md) for more details
