@@ -28,7 +28,7 @@ Options:
 
   Request:
     -workers     sets the desirable number of http workers (default: 50)
-    -cpus        sets the maximum number of CPUs that can be utilized (default: %d)
+    -cpus        sets the maximum number of CPUs that can be utilized (default: available-1
     -timeout     sets a time limit for requests, valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". (default: 15s)
   
   General:
