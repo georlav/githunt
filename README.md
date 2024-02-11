@@ -18,8 +18,8 @@ A simple command line tool to mass check targets for exposed .git directories.
 Usage: githunt [options...] 
 
 Usage Examples:
-  githunt -target example.com
-  githunt -targets urls.txt -workers 100 -timeout 30s -output out.txt
+  githunt -url example.com
+  githunt -urls urls.txt -workers 100 -timeout 30s -output out.txt
 
 Options:
   Target:
