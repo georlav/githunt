@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-
 	"github.com/georlav/githunt/internal/client"
 	"github.com/georlav/githunt/internal/utils"
 	"github.com/georlav/githunt/internal/worker"
@@ -52,7 +51,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Initialize http client
+	// Initialize http c
 	c := client.NewClient(
 		client.SetTimeout(*timeout),
 	)
@@ -80,7 +79,7 @@ func main() {
 
 	// save vulnerable targets in a file
 	vulnerableCH := make(chan string)
-	if err := utils.SaveResults(ctx, vulnerableCH, *output); err != nil {
+	if err = utils.SaveResults(ctx, vulnerableCH, *output); err != nil {
 		fmtError.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
@@ -116,7 +115,7 @@ func main() {
 	}
 }
 
-// terminate on SIGINT or SIGTERM
+// terminate on SIGINT or SIGTERM.
 func terminate(cancel context.CancelFunc) {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

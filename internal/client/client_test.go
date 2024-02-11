@@ -21,7 +21,7 @@ func TestClient_CheckGit(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			w.Write(b)
+			_, _ = w.Write(b)
 		case "notfound":
 			http.NotFound(w, r)
 		case "timeout":
@@ -31,6 +31,7 @@ func TestClient_CheckGit(t *testing.T) {
 			t.Fatal("Server got unexpected input")
 		}
 	}))
+
 	t.Cleanup(func() {
 		ts.Close()
 	})

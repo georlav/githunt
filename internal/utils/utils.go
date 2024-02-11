@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/fatih/color"
-
 	"github.com/georlav/githunt/internal/worker"
 )
 
@@ -16,11 +15,11 @@ func SaveResults(ctx context.Context, results <-chan string, output string) erro
 	if output != "" {
 		out, err := os.OpenFile(output, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 		if err != nil {
-			return err
+			return fmt.Errorf("opening file %s. Error: %w", output, err)
 		}
 
 		if err := out.Truncate(0); err != nil {
-			return err
+			return fmt.Errorf("truncating file %s. Error: %w", output, err)
 		}
 
 		go func() {
@@ -54,7 +53,7 @@ func LoadTargetURLs(ctx context.Context, filename, target, urlPath string) (<-ch
 	if target != "" {
 		tURL, err := url.Parse(target)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("parsing url %s. Error: %w", target, err)
 		}
 		if tURL.Scheme == "" {
 			tURL.Scheme = "https"
@@ -73,7 +72,7 @@ func LoadTargetURLs(ctx context.Context, filename, target, urlPath string) (<-ch
 	if filename != "" {
 		file, err := os.Open(filename)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("opening targets file %s. Error: %w", filename, err)
 		}
 
 		go func() {
@@ -89,13 +88,15 @@ func LoadTargetURLs(ctx context.Context, filename, target, urlPath string) (<-ch
 					u, err := url.Parse(scanner.Text())
 					if err != nil {
 						targets <- worker.Target{
-							Error: fmt.Errorf("unable to parse %s, will skip. Error: %w", scanner.Text(), err),
+							Error: fmt.Errorf("parsing %s. Error: %w", scanner.Text(), err),
 						}
 						continue
 					}
+
 					if u.Scheme == "" {
 						u.Scheme = "https"
 					}
+
 					u.Path += urlPath
 
 					targets <- worker.Target{URL: u}
@@ -113,7 +114,7 @@ func LoadTargetURLs(ctx context.Context, filename, target, urlPath string) (<-ch
 	return targets, nil
 }
 
-// help menu
+// help menu.
 func Usage(cpus int, version string) func() {
 	return func() {
 		usage := `
