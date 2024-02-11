@@ -131,6 +131,7 @@ Options:
   Target:
     -url         check single url
     -urls        file containing multiple urls (one per line)
+    -path        sets the path to .git config file (default: /.git/config)
 
   Request:
     -workers     sets the desirable number of http workers (default: 50)
